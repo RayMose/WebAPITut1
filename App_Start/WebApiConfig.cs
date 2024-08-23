@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
+using System.Net.Http.Formatting;
+using System.Net.Http.Headers;
 
 namespace WebAPITut1
 {
@@ -19,6 +21,22 @@ namespace WebAPITut1
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+            config.Formatters.Add(new CustomJsonFormatter());
         }
     }
+
+    //Implementing JSON Media Formatters for Browser calls
+
+    public class CustomJsonFormatter : JsonMediaTypeFormatter
+        {
+            public CustomJsonFormatter()
+            {
+                this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
+            }
+            public override void SetDefaultContentHeaders(Type type, HttpContentHeaders headers, MediaTypeHeaderValue mediaType)
+            {
+                base.SetDefaultContentHeaders(type, headers, mediaType);
+                headers.ContentType = new MediaTypeHeaderValue("application/json");
+            }
+        }
 }
