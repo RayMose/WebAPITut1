@@ -29,8 +29,16 @@ namespace WebAPITut1.Controllers
                 }
                 else
                 {
-                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Employee with ID" + id.ToString() + "not found");
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Employee with ID " + id.ToString() + " not found");
                 }
+            }
+        }
+        public void Post([FromBody] Employee employee)
+        {
+            using (EmployeeDBContext dBContext = new EmployeeDBContext())
+            {
+                dBContext.Employees.Add(employee);
+                dBContext.SaveChanges();
             }
         }
     }
