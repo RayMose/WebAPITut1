@@ -10,6 +10,7 @@ namespace WebAPITut1.Controllers
 {
     public class EmployeesController : ApiController
     {
+        //GET methods implementation
         public HttpResponseMessage Get()
         {
             using (EmployeeDBContext dBContext = new EmployeeDBContext())
@@ -33,12 +34,55 @@ namespace WebAPITut1.Controllers
                 }
             }
         }
-        public void Post([FromBody] Employee employee)
+
+        //POST method implementation
+        public HttpResponseMessage Post([FromBody] Employee employee)
         {
-            using (EmployeeDBContext dBContext = new EmployeeDBContext())
+            try
             {
-                dBContext.Employees.Add(employee);
-                dBContext.SaveChanges();
+                using (EmployeeDBContext dBContext = new EmployeeDBContext())
+                {
+                    dBContext.Employees.Add(employee);
+                    dBContext.SaveChanges();
+
+                    var message = Request.CreateResponse(HttpStatusCode.Created, employee);
+                    message.Headers.Location = new Uri(Request.RequestUri + employee.ID.ToString());
+                    return message;
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+        //PUT method implementation
+        public HttpResponseMessage Put(int id, [FromBody]Employee employee)
+        {
+            try
+            {
+                using (EmployeeDBContext dBContext = new EmployeeDBContext())
+                {
+                    var entity = dBContext.Employees.FirstOrDefault(e => e.ID == id);
+                    if (entity == null)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound, "Employee with Id " + id.ToString() + " not found to update");
+                    }
+                    else
+                    {
+                        entity.FirstName = employee.FirstName;
+                        entity.LastName = employee.LastName;
+                        entity.Gender = employee.Gender;
+                        entity.Salary = employee.Salary;
+
+                        dBContext.SaveChanges();
+
+                        return Request.CreateResponse(HttpStatusCode.OK, entity);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex);
             }
         }
     }
