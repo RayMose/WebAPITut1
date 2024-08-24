@@ -11,12 +11,21 @@ namespace WebAPITut1.Controllers
     public class EmployeesController : ApiController
     {
         //GET methods implementation
-        public HttpResponseMessage Get()
+        public HttpResponseMessage Get(string gender = "All")
         {
-            using (EmployeeDBContext dBContext = new EmployeeDBContext())
+            using (EmployeeDBContext dbContext = new EmployeeDBContext())
             {
-                var Employees = dBContext.Employees.ToList();
-                return Request.CreateResponse(HttpStatusCode.OK, Employees);
+                switch (gender.ToLower())
+                {
+                    case "all":
+                        return Request.CreateResponse(HttpStatusCode.OK, dbContext.Employees.ToList());
+                    case "male":
+                        return Request.CreateResponse(HttpStatusCode.OK, dbContext.Employees.Where(e => e.Gender.ToLower() == "male").ToList());
+                    case "female":
+                        return Request.CreateResponse(HttpStatusCode.OK, dbContext.Employees.Where(e => e.Gender.ToLower() == "female").ToList());
+                    default:
+                        return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Value for gender must be Male, Female or All. " + gender + " is invalid.");
+                }
             }
         }
         public HttpResponseMessage Get(int id)
